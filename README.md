@@ -16,7 +16,7 @@ Adjustments on the raw load step datasets at the "Other_Data" folder had to be m
 * Addition of 30 minutes on the specific starting and ending hours of the Daylight Saving Time;
 * Renaming of columns to enable direct bind_rows() of the different yearly load step datasets.
 
-## Current State on October 25th 2020
+## Current State in October 25th 2020
 * Period of analysis runs from April 18th 2018 to October 21st 2020;
 * Datasets of the weekly and hourly PSD are put on "tidy format", joined by load step classification, the 'dataframe_PSD' object in '000_xls_to_rds.R' script.
 * Some plots for exploratory analysis visualization can be saved in .jpeg and .pdf format with '001_plot_to_jpeg.R' and '001_plot_to_pdf.R' respectively;
