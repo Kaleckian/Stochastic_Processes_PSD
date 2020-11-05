@@ -2,7 +2,7 @@ if(!dir.exists(paste0("../Stochastic_Processes_PSD_Output/"))){
   dir.create(paste0("../Stochastic_Processes_PSD_Output/"))
 }else{}
 
-jpeg("../Stochastic_Processes_PSD_Output/AllYears_PSD.jpeg")
+png("../Stochastic_Processes_PSD_Output/AllYears_PSD.png")
 
 cols <- c('Horário'='#000000',"Leve" = 'green', "Médio" = "orange", "Pesado" = "#E41A1C")
 
@@ -26,13 +26,13 @@ p <- dataframe_PSD %>%
 
 print(p);dev.off()
 
-for(arg_year in 2018:2020){
+for(arg_year in sort(unique(dataframe_PSD$year))){
   
   if(!dir.exists(paste0("../Stochastic_Processes_PSD_Output/",arg_year))){
     dir.create(paste0("../Stochastic_Processes_PSD_Output/",arg_year))
   }else{}
   
-  jpeg(paste0("../Stochastic_Processes_PSD_Output/",arg_year,"/",arg_year,"_PSD.jpeg"))  
+  png(paste0("../Stochastic_Processes_PSD_Output/",arg_year,"/",arg_year,"_PSD.png"))  
   p <- dataframe_PSD %>%
     filter(Year == arg_year) %>%
     ggplot(data=.,aes(x = timestamp,y = (PSDh),color='Horário'))+geom_line() +
@@ -80,7 +80,7 @@ for(arg_year in 2018:2020){
     
     vYYYYMM <- paste0(arg_year,ifelse(arg_month<=9,paste0('0',arg_month),arg_month))
     
-    jpeg(paste0("../Stochastic_Processes_PSD_Output/",arg_year,"/",vYYYYMM,"_PSD.jpeg"))  
+    png(paste0("../Stochastic_Processes_PSD_Output/",arg_year,"/",vYYYYMM,"_PSD.png"))  
     print(p);dev.off()  
   }
 }

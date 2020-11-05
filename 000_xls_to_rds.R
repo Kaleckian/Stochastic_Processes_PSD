@@ -7,7 +7,7 @@ options(java.parameters = "-Xmx48g",scipen=999)
 #the rstudioapi package. It offers the rstudio::getActiveDocumentContext() that
 #allows relative paths.
 
-vec.pkg <- c("rstudioapi","lubridate","tidyverse","tictoc",'readxl')
+vec.pkg <- c("latex2exp",'MASS','gridExtra',"rstudioapi","lubridate","tidyverse","tictoc",'readxl')
 vec.newpkg <- vec.pkg[!(vec.pkg %in% installed.packages()[,"Package"])]
 if(length(vec.newpkg)) install.packages(vec.newpkg)
 lapply(vec.pkg, require, character.only = TRUE)
@@ -15,8 +15,6 @@ rm(vec.pkg,vec.newpkg)
  
 #Sets the current folder of the script as the working directory.
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-
-
 
 ZZZ_VLookUp_Holidays <- readxl::read_excel('Other_Data/PSD_Holidays.xlsx') %>%
   mutate(Date = ymd(Date))
@@ -78,15 +76,6 @@ if(ZZZ_Hourly_PSD %>% group_by(Date,Hour_Hourly,SubMkt) %>% filter(n()!=1) %>% n
   print('Number of rows different from expected quantity of hours!')
 }else{} 
 
-# Commented piece: calculates time interval between two dates.
-# T_length <- time_length(
-#   interval(
-#     min(ZZZ_Hourly_PSD$Date),
-#     max(ZZZ_Hourly_PSD$Date)
-#   ),"day")
-
-# Commented piece: equally lengthed partition; time-vector.
-# vec.tempo.teste <- lubridate::ymd(min(ZZZ_Hourly_PSD$Date)) %m+% days(0:763)
 
 # After the proper data cleaning of the Weekly and Hourly PSD's, 
 # the argument of fnc.VLookUp_Weekly_vs_Hourly(df_Days_PSDh) is settled.
@@ -102,6 +91,8 @@ ZZZ_LoadSteps <- bind_rows(... =
   mutate(Date = as.Date(DIA,origin='1899-12-30'), Hour_LoadStep = str_sub(HORA,-8,-4),
          Week_LoadStep = str_sub(SEMANA,-1,-1), 
          WeekDay_LoadStep = `DIA SEMANA`,  Type_LoadStep = TIPO) %>% 
+  mutate(DayLightType = str_to_lower(`TIPO HORÁRIO`)) %>% 
+  mutate(DayLightType = if_else(is.na(DayLightType),'horário normal',DayLightType)) %>% 
   mutate(LoadStep = PATAMAR) %>%
   mutate(LoadStep = case_when(
     str_to_upper(LoadStep) == 'LEVE' ~ 'Leve',
@@ -109,21 +100,11 @@ ZZZ_LoadSteps <- bind_rows(... =
     str_to_upper(LoadStep) == 'PESADO' ~ 'Pesado',
     T ~ 'Erro'
   )) %>%  mutate(LoadStep = factor(LoadStep,ordered=T,levels=c('Leve','Médio','Pesado'))) %>% 
-  select(Date:LoadStep) %>% 
+  dplyr::select((Date:LoadStep)) %>% 
   #Strictly necessary: there is an unexplicable behavior under 'America/Sao_Paulo' time zone.
   mutate(Key = as.POSIXct(strptime(paste0(Date,' ',Hour_LoadStep),"%Y-%m-%d %H:%M"),tz = "America/Buenos_Aires"))
 
-# Test to verify which month is lacking days on a Hourly PSD basis.
-# View(
-#   ZZZ_Hourly_PSD %>% select(Date) %>% 
-#     mutate(`Year/Month` = paste0(str_sub(Date,1,4),'/',str_sub(Date,6,7))) %>% distinct() %>% 
-#     mutate(fnc_Days = days_in_month(Date)) %>% 
-#     group_by(fnc_Days,`Year/Month`) %>% mutate(Days_in_Month = n()) %>%
-#     ungroup() %>% filter(Days_in_Month != fnc_Days)
-#   )
-#       
-
-source('Miscelaneous/function_dataframe_PSD.R')
+source('Sub/function_dataframe_PSD.R')
 
 dataframe_PSD <- fnc.dataframe_PSD(
   ZZZ_Hourly_PSD=ZZZ_Hourly_PSD,
@@ -132,6 +113,39 @@ dataframe_PSD <- fnc.dataframe_PSD(
   ZZZ_VLookUp_Holidays=ZZZ_VLookUp_Holidays
   )
 
+# Time between intervals: true number of days.
+T_length <- time_length(
+  interval(
+    min(ZZZ_Hourly_PSD$Date),
+    max(ZZZ_Hourly_PSD$Date)
+  ),"day")
+
+# Dataframe of running days.
+df_days <- data.frame(Days = lubridate::ymd(min(dataframe_PSD$Date)) %m+% days(0:T_length)) %>%
+  full_join(dataframe_PSD %>% distinct(Date) %>% mutate(Alias = Date), by=c('Days'='Date'))
+
+jpeg("Figures_MD/ZZZ_MissingDays.jpeg")
+# grid.table(
+#   df_days %>% filter(is.na(Alias)) %>% 
+#     rename(`Dia Faltante` = Days) %>% 
+#     mutate(`Dia da Semana` = wday(`Dia Faltante`,label = T)) %>% 
+#     select(-Alias)
+# )
+gridExtra::grid.table(
+  df_days %>% filter(is.na(Alias)) %>% 
+    rename(`Dia Faltante` = Days) %>% 
+    mutate(`Dia da Semana` = wday(`Dia Faltante`,label = T)) %>% 
+    select(-Alias)
+)
+dev.off()
+
+# This functions join hourly and weekly PSD with loadSteps and holidays to
+# return the final tidy dataset of the Hourly PSD agains its Load Step classification.
 
 
+if(!dir.exists(paste0("../Stochastic_Processes_PSD_Output/"))){
+  dir.create(paste0("../Stochastic_Processes_PSD_Output/"))
+}else{}
 
+# Save tidy dataset in a Excel file.
+writexl::write_xlsx(x = dataframe_PSD,'../Stochastic_Processes_PSD_Output/dataframe_PSD.xlsx')
