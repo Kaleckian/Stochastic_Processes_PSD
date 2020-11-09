@@ -12,12 +12,13 @@ vec.newpkg <- vec.pkg[!(vec.pkg %in% installed.packages()[,"Package"])]
 if(length(vec.newpkg)) install.packages(vec.newpkg)
 lapply(vec.pkg, require, character.only = TRUE)
 rm(vec.pkg,vec.newpkg)
- 
+
 #Sets the current folder of the script as the working directory.
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 ZZZ_VLookUp_Holidays <- readxl::read_excel('Other_Data/PSD_Holidays.xlsx') %>%
   mutate(Date = ymd(Date))
+
 
 #### Boundaries (structural (hourly) maximum, maximum and minimum for the PSD). ####
 ZZZ_bound <- data.frame(Year = c(2018:2020),
@@ -149,3 +150,6 @@ if(!dir.exists(paste0("../Stochastic_Processes_PSD_Output/"))){
 
 # Save tidy dataset in a Excel file.
 writexl::write_xlsx(x = dataframe_PSD,'../Stochastic_Processes_PSD_Output/dataframe_PSD.xlsx')
+
+# # Save tidy dataset as rds.
+# write_rds(x = dataframe_PSD, 'dataframe_PSD.rds')

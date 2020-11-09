@@ -21,7 +21,8 @@ fnc.dataframe_PSD <- function(ZZZ_Hourly_PSD,ZZZ_Weekly_PSD,ZZZ_LoadSteps,ZZZ_VL
     left_join(df_W_PSD,by=c('ID_Week'='ID_Week','SubMkt'='SubMkt','LoadStep'='LoadStep')) %>%
     mutate(Year = str_sub(Date,1,4)) %>% 
     rename(timestamp = Key) %>% mutate(`Year/Month` = paste0(Year,'/',str_sub(Date,6,7))) %>% 
-    mutate(`Year/Month/Day` = paste0(`Year/Month`,'/',day(Date)))
+    mutate(Day = if_else(day(Date)<=9,paste0('0',day(Date)),as.character(day(Date)))) #%>%
+   # mutate(`Year/Month/Day` = paste0(`Year/Month`,'/',Day))
 
   df <- df %>%
     mutate(Month = lubridate::month(Date)) %>%
@@ -63,9 +64,13 @@ fnc.dataframe_PSD <- function(ZZZ_Hourly_PSD,ZZZ_Weekly_PSD,ZZZ_LoadSteps,ZZZ_VL
       Date >= ymd('2018-11-04') & Date <= ymd('2019-02-16') ~ 'Daylight Saving Time',
       T ~ Season)) %>% 
     mutate(TIME = as.character(timestamp)) %>% 
+    group_by(SubMkt) %>% mutate(log_ret_PSDh = log(PSDh/lag(PSDh))) %>% 
+    group_by(SubMkt,LoadStep) %>% mutate(log_ret_per_LoadStep_PSDh = log(PSDh/lag(PSDh))) %>% 
+    ungroup() %>% 
+    
     mutate(log_diff = log(PSDh/PSD),diff_perc = (PSDh/PSD)-1,diff_nom = (PSDh-PSD)) %>% 
-    dplyr::select(SubMkt,Date,`Year/Month`,`Year/Month/Day`,Hour_LoadStep,WeekDay_LoadStep,WDay,LoadStep,
-           PSD,PSDh,log_diff,diff_perc,diff_nom,everything())
+    dplyr::select(SubMkt,LoadStep,Season,ID_Week,Date,Hour_LoadStep,Type_LoadStep,WDay,
+           PSD,PSDh,log_diff,diff_perc,diff_nom,log_ret_PSDh,log_ret_per_LoadStep_PSDh,TIME,everything())
   
   return(df)
 }

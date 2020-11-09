@@ -5,6 +5,7 @@ if(!dir.exists(paste0("../Stochastic_Processes_PSD_Output/"))){
 png("../Stochastic_Processes_PSD_Output/AllYears_PSD.png")
 
 cols <- c('Horário'='#000000',"Leve" = 'green', "Médio" = "orange", "Pesado" = "#E41A1C")
+#cols <- c('Horário'='gray',"Leve" = 'green', "Médio" = "orange", "Pesado" = "#E41A1C")
 
 p <- dataframe_PSD %>%
   
@@ -26,7 +27,7 @@ p <- dataframe_PSD %>%
 
 print(p);dev.off()
 
-for(arg_year in sort(unique(dataframe_PSD$year))){
+for(arg_year in sort(unique(dataframe_PSD$Year))){
   
   if(!dir.exists(paste0("../Stochastic_Processes_PSD_Output/",arg_year))){
     dir.create(paste0("../Stochastic_Processes_PSD_Output/",arg_year))
