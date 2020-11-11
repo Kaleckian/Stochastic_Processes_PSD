@@ -63,14 +63,20 @@ fnc.dataframe_PSD <- function(ZZZ_Hourly_PSD,ZZZ_Weekly_PSD,ZZZ_LoadSteps,ZZZ_VL
       Date >= ymd('2018-02-18') & Date <= ymd('2018-11-03') ~ 'Normal Time',
       Date >= ymd('2018-11-04') & Date <= ymd('2019-02-16') ~ 'Daylight Saving Time',
       T ~ Season)) %>% 
-    mutate(TIME = as.character(timestamp)) %>% 
-    group_by(SubMkt) %>% mutate(log_ret_PSDh = log(PSDh/lag(PSDh))) %>% 
-    group_by(SubMkt,LoadStep) %>% mutate(log_ret_per_LoadStep_PSDh = log(PSDh/lag(PSDh))) %>% 
-    ungroup() %>% 
-    
-    mutate(log_diff = log(PSDh/PSD),diff_perc = (PSDh/PSD)-1,diff_nom = (PSDh-PSD)) %>% 
+    mutate(TIME = as.character(timestamp)) %>% arrange(Date,Hour_Hourly,SubMkt) %>% 
+    group_by(SubMkt) %>% mutate(h_t = log(PSDh/lag(PSDh))) %>% 
+    group_by(SubMkt,LoadStep) %>% mutate(hC_t = log(PSDh/lag(PSDh))) %>% 
+    mutate(index.hC_t = 1:n()) %>% 
+    mutate(Dummy_ChgDay = if_else(lag(Date)==Date,0,1)) %>% ungroup() %>% 
+    group_by(SubMkt) %>%
+    mutate(Dummy_ChgLoadStep = if_else(lag(LoadStep)==LoadStep,0,1)) %>%
+    ungroup() %>%  
+    mutate(Dummy_ChgBoth = if_else(Dummy_ChgLoadStep==1&Dummy_ChgDay==1,1,0)) %>% 
+  
+    mutate(x_t = log(PSDh/PSD),Xt = (PSDh/PSD)-1,PSDh_PSDw = (PSDh-PSD)) %>% 
     dplyr::select(SubMkt,LoadStep,Season,ID_Week,Date,Hour_LoadStep,Type_LoadStep,WDay,
-           PSD,PSDh,log_diff,diff_perc,diff_nom,log_ret_PSDh,log_ret_per_LoadStep_PSDh,TIME,everything())
+           PSD,PSDh,x_t,Xt,PSDh_PSDw,h_t,hC_t,TIME,everything()) %>%
+      arrange(Date,Hour_Hourly,SubMkt)
   
   return(df)
 }

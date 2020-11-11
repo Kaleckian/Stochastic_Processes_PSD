@@ -14,11 +14,11 @@ v_threshold <- 1
 png(paste0("../Stochastic_Processes_PSD_Output/Histograms/","AllYears_x_LoadStep",".png"))
 
 p <- dataframe_PSD %>% 
-  mutate(BinOut = if_else(abs(diff_perc)>=v_threshold,paste0('Outlier - ', as.character(LoadStep)),
-                          as.character(LoadStep))) %>% 
-  mutate(diff_perc = if_else(abs(diff_perc)>=v_threshold,sign(diff_perc)*v_threshold,diff_perc)) %>% 
+  # mutate(BinOut = if_else(abs(X_t)>=v_threshold,paste0('Outlier - ', as.character(LoadStep)),
+  #                         as.character(LoadStep))) %>% 
+  mutate(X_t = if_else(abs(X_t)>=v_threshold,sign(X_t)*v_threshold,X_t)) %>% 
   
-  ggplot(data =., aes(x = diff_perc, fill = BinOut)) +
+  ggplot(data =., aes(x = X_t, fill = LoadStep)) +
   
   geom_histogram(aes(y = stat(count) / sum(count)), bins = 30) +
   #geom_histogram(aes(y = ..count..), bins = 30) + 
@@ -41,7 +41,7 @@ p <- dataframe_PSD %>%
   #   arrow = arrow(length = unit(0.03, "npc"))
   # ) +
   # Set legend position of SubMkt
-  theme(legend.position = 'none', legend.title = element_blank())  +
+  theme(legend.position="bottom", legend.title = element_blank()) + 
   xlab(TeX(paste0('$\\left(\\frac{PLDh_{t}}{PLD^{','Carga','}_{t}} \\right) - 1$'))) + 
   ylab(label = element_blank());print(p)
   
@@ -49,13 +49,14 @@ dev.off()
 
 #### Histogram OF LOAD STEPS per Type.
 for(arg_LoadStep in unique(dataframe_PSD$LoadStep)){
-  png(paste0("../Stochastic_Processes_PSD_Output/Histograms/Type_x_",arg_LoadStep,".png"))
+png(paste0("../Stochastic_Processes_PSD_Output/Histograms/Type_x_",arg_LoadStep,".png"))
+  
   p <- dataframe_PSD %>% 
-    mutate(BinOut = if_else(abs(diff_perc)>=v_threshold,'Outlier',as.character(LoadStep))) %>% 
-    mutate(diff_perc = if_else(abs(diff_perc)>=v_threshold,sign(diff_perc)*v_threshold,diff_perc)) %>% 
+    mutate(BinOut = if_else(abs(X_t)>=v_threshold,'Outlier',as.character(LoadStep))) %>% 
+    mutate(X_t = if_else(abs(X_t)>=v_threshold,sign(X_t)*v_threshold,X_t)) %>% 
     
     filter(LoadStep == arg_LoadStep) %>% 
-    ggplot(data =., aes(x = diff_perc, fill = BinOut)) +
+    ggplot(data =., aes(x = X_t, fill = BinOut)) +
     
     geom_histogram(aes(y = stat(count) / sum(count)), bins = 30) +
     #geom_histogram(aes(y = ..count..), bins = 30) + 
@@ -75,20 +76,20 @@ for(arg_LoadStep in unique(dataframe_PSD$LoadStep)){
     theme(legend.position = 'none', legend.title = element_blank())  +
     xlab(TeX(paste0('$\\left(\\frac{PLDh_{t}}{PLD^{',arg_LoadStep,'}_{t}} \\right) - 1$'))) +
     ylab(label = element_blank());print(p)
-  dev.off()
+dev.off()
 }
 
 #### Histogram of LOAD STEPS split by Year
 
 for(arg_LoadStep in unique(dataframe_PSD$LoadStep)){
-  png(paste0("../Stochastic_Processes_PSD_Output/Histograms/Year_x_",arg_LoadStep,".png"))
+png(paste0("../Stochastic_Processes_PSD_Output/Histograms/Year_x_",arg_LoadStep,".png"))
   p <- dataframe_PSD %>% 
     
-    mutate(BinOut = if_else(abs(diff_perc)>=v_threshold,'Outlier',as.character(LoadStep))) %>% 
-    mutate(diff_perc = if_else(abs(diff_perc)>=v_threshold,sign(diff_perc)*v_threshold,diff_perc)) %>% 
+    mutate(BinOut = if_else(abs(X_t)>=v_threshold,'Outlier',as.character(LoadStep))) %>% 
+    mutate(X_t = if_else(abs(X_t)>=v_threshold,sign(X_t)*v_threshold,X_t)) %>% 
     
     filter(LoadStep == arg_LoadStep) %>% 
-    ggplot(data =., aes(x = diff_perc, fill = BinOut)) +
+    ggplot(data =., aes(x = X_t, fill = BinOut)) +
     
     geom_histogram(aes(y = stat(count) / sum(count)), bins = 30) +
     #geom_histogram(aes(y = ..count..), bins = 30) + 
@@ -108,7 +109,7 @@ for(arg_LoadStep in unique(dataframe_PSD$LoadStep)){
     theme(legend.position = 'none', legend.title = element_blank())  +
     xlab(TeX(paste0('$\\left(\\frac{PLDh_{t}}{PLD^{',arg_LoadStep,'}_{t}} \\right) - 1$'))) + 
     ylab(label = element_blank());print(p)
-  dev.off()
+dev.off()
 }
 
 if(!dir.exists(paste0("../Stochastic_Processes_PSD_Output/Histograms/Year"))){
@@ -117,15 +118,15 @@ if(!dir.exists(paste0("../Stochastic_Processes_PSD_Output/Histograms/Year"))){
 
 #### Histogram OF YEARS per LOAD STEPS
 for(arg_year in sort(unique(dataframe_PSD$Year))){
-  png(paste0("../Stochastic_Processes_PSD_Output/Histograms/Year/",arg_year,"_x_LoadStep",".png"))
+png(paste0("../Stochastic_Processes_PSD_Output/Histograms/Year/",arg_year,"_x_LoadStep",".png"))
   
   p <- dataframe_PSD %>% 
-    mutate(BinOut = if_else(abs(diff_perc)>=v_threshold,'Outlier',as.character(LoadStep))) %>% 
-    mutate(diff_perc = if_else(abs(diff_perc)>=v_threshold,sign(diff_perc)*v_threshold,diff_perc)) %>% 
+    mutate(BinOut = if_else(abs(X_t)>=v_threshold,'Outlier',as.character(LoadStep))) %>% 
+    mutate(X_t = if_else(abs(X_t)>=v_threshold,sign(X_t)*v_threshold,X_t)) %>% 
     
     filter(Year == arg_year) %>% 
     
-    ggplot(data =., aes(x = diff_perc, fill = BinOut)) +
+    ggplot(data =., aes(x = X_t, fill = BinOut)) +
     
     geom_histogram(aes(y = stat(count) / sum(count)), bins = 30) +
     #geom_histogram(aes(y = ..count..), bins = 30) + 
@@ -145,7 +146,7 @@ for(arg_year in sort(unique(dataframe_PSD$Year))){
     theme(legend.position = 'none', legend.title = element_blank())  +
     xlab(TeX(paste0('$\\left(\\frac{PLDh_{t}}{PLD^{','Carga','}_{t}} \\right) - 1$'))) + 
     ylab(label = element_blank());print(p)
-  dev.off()
+dev.off()
 }
 
 

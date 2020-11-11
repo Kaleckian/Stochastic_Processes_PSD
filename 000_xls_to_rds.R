@@ -125,13 +125,14 @@ T_length <- time_length(
 df_days <- data.frame(Days = lubridate::ymd(min(dataframe_PSD$Date)) %m+% days(0:T_length)) %>%
   full_join(dataframe_PSD %>% distinct(Date) %>% mutate(Alias = Date), by=c('Days'='Date'))
 
+# Table with missing days.
 jpeg("Figures_MD/ZZZ_MissingDays.jpeg")
-# grid.table(
-#   df_days %>% filter(is.na(Alias)) %>% 
-#     rename(`Dia Faltante` = Days) %>% 
-#     mutate(`Dia da Semana` = wday(`Dia Faltante`,label = T)) %>% 
-#     select(-Alias)
-# )
+grid.table(
+  df_days %>% filter(is.na(Alias)) %>%
+    rename(`Dia Faltante` = Days) %>%
+    mutate(`Dia da Semana` = wday(`Dia Faltante`,label = T)) %>%
+    select(-Alias)
+)
 gridExtra::grid.table(
   df_days %>% filter(is.na(Alias)) %>% 
     rename(`Dia Faltante` = Days) %>% 
@@ -140,16 +141,13 @@ gridExtra::grid.table(
 )
 dev.off()
 
-# This functions join hourly and weekly PSD with loadSteps and holidays to
-# return the final tidy dataset of the Hourly PSD agains its Load Step classification.
-
-
 if(!dir.exists(paste0("../Stochastic_Processes_PSD_Output/"))){
   dir.create(paste0("../Stochastic_Processes_PSD_Output/"))
 }else{}
 
 # Save tidy dataset in a Excel file.
-writexl::write_xlsx(x = dataframe_PSD,'../Stochastic_Processes_PSD_Output/dataframe_PSD.xlsx')
+writexl::write_xlsx(x = list(dataframe_PSD = dataframe_PSD),
+                    '../Stochastic_Processes_PSD_Output/dataframe_PSD.xlsx')
 
-# # Save tidy dataset as rds.
-# write_rds(x = dataframe_PSD, 'dataframe_PSD.rds')
+# Save tidy dataset as rds.
+#write_rds(x = dataframe_PSD, '../Stochastic_Processes_PSD_Output/dataframe_PSD.rds')
