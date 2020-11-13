@@ -7,7 +7,7 @@ options(java.parameters = "-Xmx48g",scipen=999)
 #the rstudioapi package. It offers the rstudio::getActiveDocumentContext() that
 #allows relative paths.
 
-vec.pkg <- c("latex2exp",'MASS','gridExtra',"rstudioapi","lubridate","tidyverse","tictoc",'readxl')
+vec.pkg <- c("latex2exp",'MASS','astsa','forecast','gridExtra',"rstudioapi","lubridate","tictoc",'readxl',"tidyverse")
 vec.newpkg <- vec.pkg[!(vec.pkg %in% installed.packages()[,"Package"])]
 if(length(vec.newpkg)) install.packages(vec.newpkg)
 lapply(vec.pkg, require, character.only = TRUE)
@@ -126,20 +126,14 @@ df_days <- data.frame(Days = lubridate::ymd(min(dataframe_PSD$Date)) %m+% days(0
   full_join(dataframe_PSD %>% distinct(Date) %>% mutate(Alias = Date), by=c('Days'='Date'))
 
 # Table with missing days.
-jpeg("Figures_MD/ZZZ_MissingDays.jpeg")
-grid.table(
-  df_days %>% filter(is.na(Alias)) %>%
-    rename(`Dia Faltante` = Days) %>%
-    mutate(`Dia da Semana` = wday(`Dia Faltante`,label = T)) %>%
-    select(-Alias)
-)
-gridExtra::grid.table(
-  df_days %>% filter(is.na(Alias)) %>% 
-    rename(`Dia Faltante` = Days) %>% 
-    mutate(`Dia da Semana` = wday(`Dia Faltante`,label = T)) %>% 
-    select(-Alias)
-)
-dev.off()
+# jpeg("Figures_MD/ZZZ_MissingDays.jpeg")
+# grid.table(
+#   df_days %>% filter(is.na(Alias)) %>%
+#     rename(`Dia Faltante` = Days) %>%
+#     mutate(`Dia da Semana` = wday(`Dia Faltante`,label = T)) %>%
+#     select(`Dia Faltante`,`Dia da Semana`)
+# )
+# dev.off()
 
 if(!dir.exists(paste0("../Stochastic_Processes_PSD_Output/"))){
   dir.create(paste0("../Stochastic_Processes_PSD_Output/"))
