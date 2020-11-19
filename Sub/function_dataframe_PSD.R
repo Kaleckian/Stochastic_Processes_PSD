@@ -69,7 +69,9 @@ fnc.dataframe_PSD <- function(ZZZ_Hourly_PSD,ZZZ_Weekly_PSD,ZZZ_LoadSteps,ZZZ_VL
     mutate(index.hC_t = 1:n()) %>% 
     mutate(Dummy_ChgDay = if_else(lag(Date)==Date,0,1)) %>% ungroup() %>% 
     group_by(SubMkt) %>%
-    mutate(Dummy_ChgLoadStep = if_else(lag(LoadStep)==LoadStep,0,1)) %>%
+    mutate(Dummy_ChgLoadStep = if_else(lag(LoadStep)==LoadStep,0,1)) %>% ungroup() %>% 
+    group_by(SubMkt,LoadStep,ID_Week) %>% mutate(tC_week = 1:n()) %>% 
+    
     ungroup() %>%  
     mutate(Dummy_ChgBoth = if_else(Dummy_ChgLoadStep==1&Dummy_ChgDay==1,1,0)) %>% 
   

@@ -1,6 +1,9 @@
 if(!dir.exists(paste0("../Stochastic_Processes_PSD_Output/2020/COVID"))){
   dir.create(paste0("../Stochastic_Processes_PSD_Output/2020/COVID"))
-}else{}
+}else{
+  unlink(paste0("../Stochastic_Processes_PSD_Output/2020/COVID"), recursive = TRUE, force = T)
+  dir.create(paste0("../Stochastic_Processes_PSD_Output/2020/COVID"))
+}
 
 
 cols <- c('Horário'='#000000',"Leve" = 'green', "Médio" = "orange", "Pesado" = "#E41A1C")

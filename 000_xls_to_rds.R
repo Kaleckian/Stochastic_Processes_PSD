@@ -7,7 +7,8 @@ options(java.parameters = "-Xmx48g",scipen=999)
 #the rstudioapi package. It offers the rstudio::getActiveDocumentContext() that
 #allows relative paths.
 
-vec.pkg <- c("latex2exp",'MASS','astsa','forecast','gridExtra',"rstudioapi","lubridate","tictoc",'readxl',"tidyverse")
+vec.pkg <- c("yuima","latex2exp",'MASS','astsa','forecast','gridExtra',"rstudioapi","lubridate","tictoc",
+             'tidyquant','readxl',"tidyverse")
 vec.newpkg <- vec.pkg[!(vec.pkg %in% installed.packages()[,"Package"])]
 if(length(vec.newpkg)) install.packages(vec.newpkg)
 lapply(vec.pkg, require, character.only = TRUE)
@@ -143,5 +144,5 @@ if(!dir.exists(paste0("../Stochastic_Processes_PSD_Output/"))){
 writexl::write_xlsx(x = list(dataframe_PSD = dataframe_PSD),
                     '../Stochastic_Processes_PSD_Output/dataframe_PSD.xlsx')
 
-# Save tidy dataset as rds.
-#write_rds(x = dataframe_PSD, '../Stochastic_Processes_PSD_Output/dataframe_PSD.rds')
+#Save tidy dataset as rds.
+write_rds(x = dataframe_PSD, '../Stochastic_Processes_PSD_Output/dataframe_PSD.rds')

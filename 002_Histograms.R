@@ -10,7 +10,7 @@ if(!dir.exists(paste0("../Stochastic_Processes_PSD_Output/Histograms/"))){
 
 v_threshold <- 1
 
-#### Histogram for all years (load steps stacked).
+#### Histogram for all years (load steps stacked). ####
 png(paste0("../Stochastic_Processes_PSD_Output/Histograms/","AllYears_stacked_LoadSteps",".png"))
 
 p <- dataframe_PSD %>% 
